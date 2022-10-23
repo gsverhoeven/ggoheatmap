@@ -1,3 +1,5 @@
+# ggoheatmap
+
 The `ggorder_heatmap()` function plots a dataframe using `geom_tile()`
 where both x- and y plotting order can be provided as arguments. It does
 not perform clustering of the data, this is performed separately to
@@ -8,6 +10,32 @@ Most R heatmap functions or packages combine clustering and plotting in
 a single function. However, there are many ways to order the rows and
 columns of a dataset, and I felt that separating the clustering from the
 plotting makes things easier to use.
+
+## install package
+
+Use `devtools::install_github("gsverhoeven/ggoheatmap")` to install the
+package from Github.
+
+## use package
+
+``` r
+library(tidyverse)
+```
+
+    ## ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.1 ──
+
+    ## ✓ ggplot2 3.3.5     ✓ purrr   0.3.4
+    ## ✓ tibble  3.1.7     ✓ dplyr   1.0.8
+    ## ✓ tidyr   1.1.4     ✓ stringr 1.4.0
+    ## ✓ readr   2.1.1     ✓ forcats 0.5.1
+
+    ## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+    ## x dplyr::filter() masks stats::filter()
+    ## x dplyr::lag()    masks stats::lag()
+
+``` r
+library(ggoheatmap)
+```
 
 # Create an example dataset
 
@@ -44,7 +72,7 @@ ggorder_heatmap(df,
                 value_var = "perc")
 ```
 
-![](README_files/figure-markdown_github/unnamed-chunk-2-1.png)
+![](README_files/figure-markdown_github/unnamed-chunk-3-1.png)
 
 Then, we show how we can tell `ggorder_heatmap()` which column contains
 the sort order of the x axis. `ggorder_heatmap()` returns a ggplot2
@@ -59,7 +87,7 @@ ggorder_heatmap(df,
   ggtitle("Now with ordered x axis")
 ```
 
-![](README_files/figure-markdown_github/unnamed-chunk-3-1.png)
+![](README_files/figure-markdown_github/unnamed-chunk-4-1.png)
 
 # Hierarchical clustering with ggorder_heatmap
 
@@ -73,20 +101,17 @@ using `hclust`.
 df_clust <- hclust_order(df,
                    clust_method = "complete",
                    dist_method = "euclidean")
+
+df_clust
 ```
 
-    ## Loading required package: data.table
-
-    ## 
-    ## Attaching package: 'data.table'
-
-    ## The following objects are masked from 'package:dplyr':
-    ## 
-    ##     between, first, last
-
-    ## The following object is masked from 'package:purrr':
-    ## 
-    ##     transpose
+    ##    x cluster_order y perc col_order  xlab
+    ## 1: 1             2 1  1.0         2   Foo
+    ## 2: 1             2 2  0.2         2   Foo
+    ## 3: 2             3 1  0.3         1   Bar
+    ## 4: 2             3 2  1.0         1   Bar
+    ## 5: 3             1 1  1.0         0 Hello
+    ## 6: 3             1 2  0.4         0 Hello
 
 ``` r
 ggorder_heatmap(df_clust, 
@@ -95,7 +120,7 @@ ggorder_heatmap(df_clust,
   ggtitle("Order column is now based on hierarchical clustering")
 ```
 
-![](README_files/figure-markdown_github/unnamed-chunk-4-1.png)
+![](README_files/figure-markdown_github/unnamed-chunk-6-1.png)
 
 # Palmer penguins
 
@@ -120,4 +145,4 @@ Let’s plot all the (numeric) values of a random sample of 30 penguins:
 ggorder_heatmap(df_long, xvar = "row_id", yvar = "variable", order_var = "row_id") 
 ```
 
-![](README_files/figure-markdown_github/unnamed-chunk-6-1.png)
+![](README_files/figure-markdown_github/unnamed-chunk-8-1.png)
