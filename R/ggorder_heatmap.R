@@ -9,31 +9,39 @@
 # do we want x values or the labels of the x values
 
 
-ggorder_heatmap <- function(res, 
-                           xvar = "x", 
-                           yvar = "y", 
-                           value_var = "value", 
-                           order_var = NA, 
+ggorder_heatmap <- function(res,
+                           xvar = "x",
+                           yvar = "y",
+                           value_var = "value",
+                           order_var = NA,
                            xlab_var = NA,
                            xlab = "",
                            ylab = "",
                            text_colorvar = "red",
                            title = "heatmap plot",
-                           legend = TRUE){
+                           legend = TRUE,
+                           round = TRUE,
+                           round.digits = 2){
 
   # create reorder string
     if(!is.na(order_var)) {
     xstring <- paste0("reorder(",xvar,",", order_var, ")")
-  } else { 
+  } else {
     # default is factor order of xlab_Var, but we want as default the dataframe row order
     res$order_var <- 1:nrow(res)
     order_var <- "order_var"
     xstring <- paste0("reorder(",xvar,",", order_var, ")")
   }
-  
+  res <- as.data.table(res)
+  if(round) {
+    res[, (value_var) := round(get(value_var), round.digits)]
+  } else {
+    res[, (value_var) := get(value_var)]
+  }
+
   # build plot
-  gp <- ggplot(res, aes_string(x = xstring, 
-                               y = yvar)) + 
+  gp <- ggplot(res, aes_string(x = xstring,
+                               y = yvar)) +
     geom_tile(aes_string(fill = value_var)) +
     geom_text(aes_string(label = value_var)) +
     scale_fill_gradient(low = "white", high = "dodgerblue3") +
@@ -46,7 +54,7 @@ ggorder_heatmap <- function(res,
           panel.grid.major = element_blank()) +
     xlab(xlab) + ylab(ylab) +
     ggtitle(title)
-  
+
   if(legend == FALSE) {
     gp <- gp + theme(legend.position = "none")
   }
