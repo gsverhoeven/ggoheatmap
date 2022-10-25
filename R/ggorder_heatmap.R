@@ -12,17 +12,20 @@
 ggorder_heatmap <- function(res,
                            xvar = "x",
                            yvar = "y",
-                           value_var = "value",
+                           col_var = "value",
+                           label_var = NA,
                            order_var = NA,
                            xlab_var = NA,
                            xlab = "",
                            ylab = "",
                            text_colorvar = "red",
-                           title = "heatmap plot",
                            legend = TRUE,
                            round = TRUE,
                            round.digits = 2){
 
+  if(is.na(label_var)){
+    label_var <- col_var
+  }
   # create reorder string
     if(!is.na(order_var)) {
     xstring <- paste0("reorder(",xvar,",", order_var, ")")
@@ -32,18 +35,19 @@ ggorder_heatmap <- function(res,
     order_var <- "order_var"
     xstring <- paste0("reorder(",xvar,",", order_var, ")")
   }
+  # format label string
   res <- as.data.table(res)
   if(round) {
-    res[, (value_var) := round(get(value_var), round.digits)]
+    res[, (label_var) := round(get(label_var), round.digits)]
   } else {
-    res[, (value_var) := get(value_var)]
+    res[, (label_var) := get(label_var)]
   }
 
   # build plot
   gp <- ggplot(res, aes_string(x = xstring,
                                y = yvar)) +
-    geom_tile(aes_string(fill = value_var)) +
-    geom_text(aes_string(label = value_var)) +
+    geom_tile(aes_string(fill = col_var)) +
+    geom_text(aes_string(label = label_var)) +
     scale_fill_gradient(low = "white", high = "dodgerblue3") +
     theme(axis.text.x = element_text(angle = 90,
                                      hjust = 1,
@@ -52,9 +56,7 @@ ggorder_heatmap <- function(res,
           axis.text.y = element_text(size = 8),
           panel.border = element_blank(),
           panel.grid.major = element_blank()) +
-    xlab(xlab) + ylab(ylab) +
-    ggtitle(title)
-
+    xlab(xlab) + ylab(ylab)
   if(legend == FALSE) {
     gp <- gp + theme(legend.position = "none")
   }
