@@ -4,41 +4,43 @@
 
 
 hclust_order <- function(df,
+                         xvar = "x",
+                         yvar = "y",
+                         value_var = "value",
                          clust_method = "complete",
                          dist_method = "euclidean") {
   df <- as.data.table(df)
 
-  var_names <- colnames(df)
 
   # transform from long to wide using dcast
-  formula_string <- paste0(var_names[1], " ~ ", var_names[2])
+  formula_string <- paste0(xvar, " ~ ", yvar) # x vs y
   formula <- as.formula(formula_string)
 
   df_wide <- data.table::dcast(formula,
                    data = df,
-                   fun.aggregate = length)
+                   fun.aggregate = NULL, value.var = value_var)
 
   # move first column into rownames
-  rownames(df_wide) <- as.character(df_wide[, get(var_names[1])])
+  rownames(df_wide) <- as.character(df_wide[, get(xvar)])
 
-  df_wide <- df_wide[, var_names[1] := NULL]
-
+  df_wide <- df_wide[, (xvar) := NULL]
+  print(rownames(df_wide))
   # cluster using hclust / dist
   clust <- hclust(d = dist(x = df_wide,
                            method = dist_method),
                   method = clust_method )
 
   # extract ordering
-  obs_label <- as.integer(rownames(df_wide)[clust$order])
+  obs_label <- rownames(df_wide)[clust$order]
 
   order_table <- data.table(first_col = obs_label,
                             cluster_order = 1:nrow(df_wide))
 
-  setnames(order_table, "first_col", var_names[1])
+  setnames(order_table, "first_col", xvar)
 
   # add ordering to original dataset
-  setkeyv(order_table, var_names[1])
-  setkeyv(df, var_names[1])
+  setkeyv(order_table, xvar)  # it orders the x value
+  setkeyv(df, xvar)
 
   df <- order_table[df]
 
