@@ -29,8 +29,12 @@ library(ggoheatmap)
 
 # Create an example dataset 
 
-First we create a dataframe that contains a 2 x 3 matrix of percentages, in the `long` format, suitable for `ggplot`.
-It contains two special columns: `col_order`, that specifies the plotting order of the x value, and `xlab`, the label of the x axis.
+First we create a dataframe that corresponds to a 2 x 3 matrix of percentages.
+`ggorder_heatmap()` requires data in the `long` format, suitable for `ggplot`.
+
+A matrix or wide dataset needs to be converted first using `pivot_longer()`.
+
+The dataframe contains two special columns: `col_order`, that specifies the plotting order of the x value, and `xlab`, the label of the x axis.
 
 ```{r}
 df <- data.frame(x = c(1, 1, 2, 2, 3, 3), 
@@ -47,8 +51,7 @@ Next, we show first the default behavior, which is to plot the dataset "as is":
 <!-- xlab_var = "xlab" does not work yet -->
 
 ```{r}
-ggorder_heatmap(df,
-                value_var = "perc")
+ggorder_heatmap(df, value_var = "perc")
 ```
 
 Then, we show how we can tell `ggorder_heatmap()` which column contains the sort order of the x axis.

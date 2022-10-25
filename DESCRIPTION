@@ -3,9 +3,8 @@ Type: Package
 Title: ggplot heatmap with row and column ordering
 Version: 0.1.0
 Author: Gertjan Verhoeven
-Maintainer: The package maintainer <gertjan.verhoeven@gmail.com>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Maintainer: Gertjan Verhoeven <gertjan.verhoeven@gmail.com>
+Description: The `ggorder_heatmap()` function plots a dataframe using `geom_tile()` where both x- and y plotting order can be provided as arguments. 
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
