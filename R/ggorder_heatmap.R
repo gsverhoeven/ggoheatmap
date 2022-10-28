@@ -15,6 +15,7 @@ ggorder_heatmap <- function(res,
                            col_var = "value",
                            label_var = NA,
                            order_var = NA,
+                           yorder_var = NA,
                            xlab_var = NA,
                            xlab = "",
                            ylab = "",
@@ -26,7 +27,7 @@ ggorder_heatmap <- function(res,
   if(is.na(label_var)){
     label_var <- col_var
   }
-  # create reorder string
+  # create X reorder string
     if(!is.na(order_var)) {
     xstring <- paste0("reorder(",xvar,",", order_var, ")")
   } else {
@@ -35,6 +36,16 @@ ggorder_heatmap <- function(res,
     order_var <- "order_var"
     xstring <- paste0("reorder(",xvar,",", order_var, ")")
   }
+  # create Yreorder string
+  if(!is.na(yorder_var)) {
+    ystring <- paste0("reorder(",yvar,",", yorder_var, ")")
+  } else {
+    # default order is the dataframe row order
+    res$yorder_var <- 1:nrow(res)
+    yorder_var <- "yorder_var"
+    ystring <- paste0("reorder(",yvar,",", yorder_var, ")")
+  }
+
   # format label string
   res <- as.data.table(res)
   if(round) {
@@ -45,7 +56,7 @@ ggorder_heatmap <- function(res,
 
   # build plot
   gp <- ggplot(res, aes_string(x = xstring,
-                               y = yvar)) +
+                               y = ystring)) +
     geom_tile(aes_string(fill = col_var)) +
     geom_text(aes_string(label = label_var)) +
     scale_fill_gradient(low = "white", high = "dodgerblue3") +

@@ -66,6 +66,17 @@ ggorder_heatmap(df,
   ggtitle("Now with ordered x axis")
 ```
 
+```{r}
+df$yorder <- -df$y
+
+ggorder_heatmap(df,
+                col_var = "perc", 
+                order_var = "col_order",
+                yorder_var = "yorder") + 
+  labs(y = "Y value") +
+  ggtitle("Now with ordered x and y axis")
+```
+
 # Hierarchical clustering with ggorder_heatmap
 
 The package contains a function `hclust_order` that adds a `cluster_order` column to a dataset based on hierarchical clustering using `hclust`.
@@ -102,11 +113,15 @@ library(palmerpenguins)
 df <- penguins
 df$row_id <- 1:nrow(df)
 
+yorder_tab <- data.frame(yorder = c(1:4), 
+                         variable = c("body_mass_g", "bill_length_mm", "bill_depth_mm", "flipper_length_mm"))
+
 df_long <- df %>%
   slice_sample(n = 30) %>%
   pivot_longer(cols = !c(species, island, sex, row_id, year), names_to = "variable") %>%
   group_by(variable) %>%
-  mutate(sd_value = scale(value))
+  mutate(sd_value = scale(value)) %>%
+  left_join(yorder_tab, by = "variable")
 ```
 
 Let's plot all the (numeric) values of a random sample of 30 penguins:
@@ -114,6 +129,7 @@ Let's plot all the (numeric) values of a random sample of 30 penguins:
 ```{r fig.width = 15, fig.height = 7}
 ggorder_heatmap(df_long, xvar = "row_id", yvar = "variable",
                 order_var = "row_id", 
+                yorder_var = "yorder",
                 col_var = "sd_value", label_var = "value", round.digits = 0) + 
   coord_flip() +
   ggtitle("30 Palmer penguins")
