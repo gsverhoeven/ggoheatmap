@@ -20,6 +20,7 @@ ggorder_heatmap <- function(res,
                            xlab = "",
                            ylab = "",
                            text_colorvar = "red",
+                           font_size = 10,
                            legend = TRUE,
                            round = TRUE,
                            round.digits = 2){
@@ -60,11 +61,8 @@ ggorder_heatmap <- function(res,
     geom_tile(aes_string(fill = col_var)) +
     geom_text(aes_string(label = label_var)) +
     scale_fill_gradient(low = "white", high = "dodgerblue3") +
-    theme(axis.text.x = element_text(angle = 90,
-                                     hjust = 1,
-                                     vjust = 0.4,
-                                     colour = "red"),
-          axis.text.y = element_text(size = 8),
+    theme(axis.text.x = element_text(size = font_size),
+          axis.text.y = element_text(size = font_size),
           panel.border = element_blank(),
           panel.grid.major = element_blank()) +
     xlab(xlab) + ylab(ylab)
@@ -74,3 +72,8 @@ ggorder_heatmap <- function(res,
   # return plot
   return(gp)
 }
+
+# angle = 90,
+# hjust = 1,
+# vjust = 0.4,
+# colour = "red"
