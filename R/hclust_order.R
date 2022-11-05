@@ -24,7 +24,7 @@ hclust_order <- function(df,
   rownames(df_wide) <- as.character(df_wide[, get(xvar)])
 
   df_wide <- df_wide[, (xvar) := NULL]
-  print(rownames(df_wide))
+
   # cluster using hclust / dist
   clust <- hclust(d = dist(x = df_wide,
                            method = dist_method),
