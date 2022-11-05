@@ -39,28 +39,33 @@ library(ggoheatmap)
 
 # Create an example dataset
 
-First we create a dataframe that contains a 2 x 3 matrix of percentages,
-in the `long` format, suitable for `ggplot`. It contains two special
-columns: `col_order`, that specifies the plotting order of the x value,
-and `xlab`, the label of the x axis.
+First we create a dataframe that corresponds to a 2 x 3 matrix of
+percentages. `ggorder_heatmap()` requires data in the `long` format,
+suitable for `ggplot`.
+
+A matrix or wide dataset needs to be converted first using
+`pivot_longer()`.
+
+The dataframe contains two special columns: `col_order`, that specifies
+the plotting order of the x value, and `xlab`, the label of the x axis.
 
 ``` r
-df <- data.frame(x = c(1, 1, 2, 2, 3, 3), 
+df <- data.frame(x = c("a", "a", "c", "c", "b", "b"), 
                   y = c(1, 2, 1, 2, 1, 2), 
                   perc = c(1, 0.2, 0.3, 1, 1, 0.4), 
-                  col_order = c(2, 2, 1, 1, 0, 0),
+                  col_order = c(1, 1, 3, 3, 2, 2),
                   xlab = as.factor(c("Foo", "Foo", "Bar", "Bar", "Hello", "Hello")))
 
 df
 ```
 
     ##   x y perc col_order  xlab
-    ## 1 1 1  1.0         2   Foo
-    ## 2 1 2  0.2         2   Foo
-    ## 3 2 1  0.3         1   Bar
-    ## 4 2 2  1.0         1   Bar
-    ## 5 3 1  1.0         0 Hello
-    ## 6 3 2  0.4         0 Hello
+    ## 1 a 1  1.0         1   Foo
+    ## 2 a 2  0.2         1   Foo
+    ## 3 c 1  0.3         3   Bar
+    ## 4 c 2  1.0         3   Bar
+    ## 5 b 1  1.0         2 Hello
+    ## 6 b 2  0.4         2 Hello
 
 Next, we show first the default behavior, which is to plot the dataset
 “as is”:
@@ -68,59 +73,83 @@ Next, we show first the default behavior, which is to plot the dataset
 <!-- xlab_var = "xlab" does not work yet -->
 
 ``` r
-ggorder_heatmap(df,
-                value_var = "perc")
+ggorder_heatmap(df, col_var = "perc")
 ```
 
-![](README_files/figure-markdown_github/unnamed-chunk-3-1.png)
+![](README_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
 
-Then, we show how we can tell `ggorder_heatmap()` which column contains
-the sort order of the x axis. `ggorder_heatmap()` returns a ggplot2
-object that can be further modified using ggplot functions, i.e. by
-adding axis and title labels.
+Use the argument `order_var` to tell `ggorder_heatmap()` which column
+contains the sort order of the x axis. `ggorder_heatmap()` returns a
+ggplot2 object that can be further modified using ggplot functions,
+i.e. by adding axis and title labels.
 
 ``` r
 ggorder_heatmap(df,
-                value_var = "perc", 
+                col_var = "perc", 
                 order_var = "col_order") + 
   labs(y = "Y value") +
   ggtitle("Now with ordered x axis")
 ```
 
-![](README_files/figure-markdown_github/unnamed-chunk-4-1.png)
+![](README_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+
+We can order the y-axis as well by specifying the `yorder` argument.
+Here we just use the negative of the y value as sort order directly.
+
+``` r
+df$yorder <- -df$y
+
+ggorder_heatmap(df,
+                col_var = "perc", 
+                order_var = "col_order",
+                yorder_var = "yorder") + 
+  labs(y = "Y value") +
+  ggtitle("Now with ordered x and y axis")
+```
+
+![](README_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
 
 # Hierarchical clustering with ggorder_heatmap
 
-The package contains a function `hclust_order` that adds a
-`cluster_order` column to a dataset based on hierarchical clustering
-using `hclust`.
+Now that we have a way to specify X- and Y sort orders, we can use
+clustering algorithms to produce sort orders for plotting.
+
+For example, the package contains a function `hclust_order()` that adds
+a `cluster_order` column to our dataset based on hierarchical clustering
+using `hclust`. The function expects a dataset in the long form with
+default column names `x`, `y` and `value`. These values can be
+overridden by the `xvar`, `yvar` and `value_var` arguments.
 
 <!-- PM # check if dist_method "euclidean", "maximum", "manhattan", "canberra", "binary" or "minkowski" also work  -->
 
 ``` r
-df_clust <- hclust_order(df,
+df_clust <- hclust_order(df, 
+                         value_var = "perc",
                    clust_method = "complete",
                    dist_method = "euclidean")
 
 df_clust
 ```
 
-    ##    x cluster_order y perc col_order  xlab
-    ## 1: 1             2 1  1.0         2   Foo
-    ## 2: 1             2 2  0.2         2   Foo
-    ## 3: 2             3 1  0.3         1   Bar
-    ## 4: 2             3 2  1.0         1   Bar
-    ## 5: 3             1 1  1.0         0 Hello
-    ## 6: 3             1 2  0.4         0 Hello
+    ##    x cluster_order y perc col_order  xlab yorder
+    ## 1: a             2 1  1.0         1   Foo     -1
+    ## 2: a             2 2  0.2         1   Foo     -2
+    ## 3: b             3 1  1.0         2 Hello     -1
+    ## 4: b             3 2  0.4         2 Hello     -2
+    ## 5: c             1 1  0.3         3   Bar     -1
+    ## 6: c             1 2  1.0         3   Bar     -2
+
+Here is the resulting heatmap using the hierarchical clustering on our
+example dataset:
 
 ``` r
 ggorder_heatmap(df_clust, 
-                value_var = "perc", 
+                col_var = "perc", 
                 order_var = "cluster_order") +
   ggtitle("Order column is now based on hierarchical clustering")
 ```
 
-![](README_files/figure-markdown_github/unnamed-chunk-6-1.png)
+![](README_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
 
 # Palmer penguins
 
@@ -134,15 +163,28 @@ library(palmerpenguins)
 df <- penguins
 df$row_id <- 1:nrow(df)
 
+yorder_tab <- data.frame(yorder = c(1:4), 
+                         variable = c("body_mass_g", "bill_length_mm", "bill_depth_mm", "flipper_length_mm"))
+
 df_long <- df %>%
   slice_sample(n = 30) %>%
-  pivot_longer(cols = !c(species, island, sex, row_id, year), names_to = "variable")
+  pivot_longer(cols = !c(species, island, sex, row_id, year), names_to = "variable") %>%
+  group_by(variable) %>%
+  mutate(sd_value = scale(value)) %>%
+  left_join(yorder_tab, by = "variable")
 ```
 
 Let’s plot all the (numeric) values of a random sample of 30 penguins:
 
 ``` r
-ggorder_heatmap(df_long, xvar = "row_id", yvar = "variable", order_var = "row_id") 
+ggorder_heatmap(df_long, xvar = "row_id", yvar = "variable",
+                order_var = "row_id", 
+                yorder_var = "yorder",
+                col_var = "sd_value", label_var = "value", round.digits = 0) + 
+  coord_flip() +
+  ggtitle("30 Palmer penguins")
 ```
 
-![](README_files/figure-markdown_github/unnamed-chunk-8-1.png)
+    ## Warning: Removed 4 rows containing missing values (geom_text).
+
+![](README_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->

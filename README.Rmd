@@ -4,7 +4,7 @@ author: "Gertjan Verhoeven"
 date: "22-10-2022"
 output:
   md_document:
-    variant: markdown_github
+    variant: gfm
 ---
 
 # ggoheatmap
@@ -55,7 +55,7 @@ Next, we show first the default behavior, which is to plot the dataset "as is":
 ggorder_heatmap(df, col_var = "perc")
 ```
 
-Then, we show how we can tell `ggorder_heatmap()` which column contains the sort order of the x axis.
+Use the argument `order_var` to tell `ggorder_heatmap()` which column contains the sort order of the x axis.
 `ggorder_heatmap()` returns a ggplot2 object that can be further modified using ggplot functions, i.e. by adding axis and title labels.
 
 ```{r}
@@ -65,6 +65,9 @@ ggorder_heatmap(df,
   labs(y = "Y value") +
   ggtitle("Now with ordered x axis")
 ```
+
+We can order the y-axis as well by specifying the `yorder` argument.
+Here we just use the negative of the y value as sort order directly.
 
 ```{r}
 df$yorder <- -df$y
@@ -79,7 +82,9 @@ ggorder_heatmap(df,
 
 # Hierarchical clustering with ggorder_heatmap
 
-The package contains a function `hclust_order` that adds a `cluster_order` column to a dataset based on hierarchical clustering using `hclust`.
+Now that we have a way to specify X- and Y sort orders, we can use clustering algorithms to produce sort orders for plotting.
+
+For example, the package contains a function `hclust_order()` that adds a `cluster_order` column to our dataset based on hierarchical clustering using `hclust`. The function expects a dataset in the long form with default column names `x`, `y` and `value`. These values can be overridden by the  `xvar`, `yvar` and `value_var` arguments.
 
 <!-- PM # check if dist_method "euclidean", "maximum", "manhattan", "canberra", "binary" or "minkowski" also work  -->
 
@@ -93,6 +98,7 @@ df_clust <- hclust_order(df,
 df_clust
 ```
 
+Here is the resulting heatmap using the hierarchical clustering on our example dataset:
 
 ```{r}
 ggorder_heatmap(df_clust, 
