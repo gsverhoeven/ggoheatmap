@@ -20,7 +20,7 @@ hclust_order <- function(df,
 
   df_wide <- data.table::dcast(formula,
                    data = df,
-                   fun.aggregate = dcast_fun.aggregate,
+                   fun.aggregate = NULL,
                    value.var = value_var,
                    fill = dcast_fill)
 
@@ -29,9 +29,11 @@ hclust_order <- function(df,
 
   df_wide <- df_wide[, (xvar) := NULL]
 
+  dist_mat <- dist(x = df_wide,
+                  method = dist_method)
+
   # cluster using hclust / dist
-  clust <- hclust(d = dist(x = df_wide,
-                           method = dist_method),
+  clust <- hclust(d = dist_mat,
                   method = clust_method )
 
   # extract ordering
