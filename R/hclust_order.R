@@ -8,7 +8,9 @@ hclust_order <- function(df,
                          yvar = "y",
                          value_var = "value",
                          clust_method = "complete",
-                         dist_method = "euclidean") {
+                         dist_method = "euclidean",
+                         dcast_fun.aggregate = NULL,
+                         dcast_fill = 0) {
   df <- as.data.table(df)
 
 
@@ -18,7 +20,9 @@ hclust_order <- function(df,
 
   df_wide <- data.table::dcast(formula,
                    data = df,
-                   fun.aggregate = NULL, value.var = value_var)
+                   fun.aggregate = dcast_fun.aggregate,
+                   value.var = value_var,
+                   fill = dcast_fill)
 
   # move first column into rownames
   rownames(df_wide) <- as.character(df_wide[, get(xvar)])
